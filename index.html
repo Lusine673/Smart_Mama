@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SmartMama — диет‑ассистент</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" 
-          integrity="sha512-YcsIPQqR9g0oSzmKM3v94aVn2Y1v3v6mQo6Cr6a2q9oW1mYF2fKm2U4GfA2m9n/FhNw3R3n8oYYb1J9rD14f0g==" 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+          integrity="sha512-YcsIPQqR9g0oSzmKM3v94aVn2Y1v3v6mQo6Cr6a2q9oW1mYF2fKm2U4GfA2m9n/FhNw3R3n8oYYb1J9rD14f0g=="
           crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <style>
     :root {
@@ -190,7 +190,7 @@
       const menuWrap = document.getElementById('menuWrap');
       const menuCard = document.getElementById('menu-card');
       const downloadBtn = document.getElementById('downloadBtn');
-      menuWrap.style.display = "none"; menuCard.innerHTML=""; downloadBtn.disabled = true;
+      menuWrap.style.display = "none"; menuCard.innerText=""; downloadBtn.disabled = true;
 
       if (pw > 0) {
         if (!(pwk < gw)) { addMsg(summary,"Срок предыдущего взвешивания должен быть меньше текущего.","error"); }
@@ -199,12 +199,12 @@
           const weightGain = cw - pw;
           const weeklyGain = weeksPassed > 0 ? (weightGain / weeksPassed) : 0;
 
-          addMsg(summary, `Прибавка за ${weeksPassed} нед.: ${weightGain.toFixed(2)} кг; в среднем: ${weeklyGain.toFixed(2)} кг/нед`, "info");
+          addMsg(summary, `Прибавка: ${weightGain.toFixed(2)} кг за ${weeksPassed} нед.; ${weeklyGain.toFixed(2)} кг/нед`, "info");
           const [minN, maxN] = norms[cat].weekly_kg;
           if (weeklyGain > maxN) {
             addMsg(summary, `Прибавка выше нормы (${maxN.toFixed(2)} кг/нед).`, "error");
             const menu = sampleMenus[Math.floor(Math.random() * sampleMenus.length)];
-            menuCard.innerHTML = "<pre>"+menu+"</pre>";
+            menuCard.innerText = menu;
             menuWrap.style.display = "block"; downloadBtn.disabled = false;
           } else if (weeklyGain < minN) {
             addMsg(summary, `Прибавка ниже нормы (${minN.toFixed(2)} кг/нед).`, "warn");
@@ -218,11 +218,7 @@
     function downloadPDF() {
       const element = document.getElementById('menu-card');
       if (!element || !element.innerText.trim()) { alert("Меню пустое."); return; }
-      const opt = { margin:10, filename:'SmartMama_меню.pdf',
-        image:{ type:'jpeg', quality:0.98 },
-        html2canvas:{ scale:2, useCORS:true },
-        jsPDF:{ unit:'mm', format:'a4', orientation:'portrait' } };
-      html2pdf().set(opt).from(element).save();
+      html2pdf().from(element).save("SmartMama_меню.pdf");
     }
 
     document.getElementById('calcBtn').addEventListener('click', calc);
