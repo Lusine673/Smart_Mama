@@ -5,9 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SmartMama — диет‑ассистент</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
-          integrity="sha512-YcsIPQqR9g0oSzmKM3v94aVn2Y1v3v6mQo6Cr6a2q9oW1mYF2fKm2U4GfA2m9n/FhNw3R3n8oYYb1J9rD14f0g=="
-          crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     :root {
       --bg: #0f172a; --card: #111827; --ink: #e5e7eb; --muted: #9ca3af;
@@ -88,15 +86,13 @@
 
       <div class="row" style="margin-top:12px">
         <button id="calcBtn">Рассчитать</button>
-        <button id="downloadBtn" class="secondary" disabled>📥 Скачать меню (PDF)</button>
+        <button id="downloadBtn" class="secondary" onclick="downloadPDF()" disabled>📥 Скачать меню (PDF)</button>
       </div>
 
       <div id="summary" style="margin-top:14px; display:grid; gap:8px;"></div>
 
       <div class="section-title">📚 Рекомендуемые нормы прибавки веса</div>
-      <div class="msg info">
-        <table id="norms-table"></table>
-      </div>
+      <div class="msg info"><table id="norms-table"></table></div>
 
       <div id="menuWrap" style="display:none; margin-top:12px">
         <div class="section-title">📋 Ваше персонализированное меню на день</div>
@@ -117,26 +113,26 @@
 
     const sampleMenus = [
 `Меню на день 1
-Завтрак: Омлет из 2 яиц + гречка (50 г сух.) + зелёный чай
-Перекус: Йогурт 200 мл + горсть черники
-Обед: Куриная грудка (120 г) + брокколи (150 г) + киноа (40 г сух.)
-Перекус: Творог 5% (100 г) + семена льна
-Ужин: Треска (100 г) + салат из овощей
-Перед сном: Кефир 200 мл`,
+Завтрак: Омлет + гречка
+Перекус: Йогурт + ягоды
+Обед: Курица + брокколи + киноа
+Перекус: Творог + семена
+Ужин: Треска + овощи
+Перед сном: Кефир`,
 `Меню на день 2
-Завтрак: Творожная запеканка + чай
-Перекус: Миндаль 20 г + яблоко
-Обед: Индейка (100 г) + кабачки тушёные (200 г) + рис бурый (40 г сух.)
+Завтрак: Запеканка
+Перекус: Миндаль + яблоко
+Обед: Индейка + кабачки + рис
 Перекус: Протеиновый коктейль
-Ужин: Запечённые овощи + фета
-Перед сном: Ряженка 200 мл`,
+Ужин: Овощи + фета
+Перед сном: Ряженка`,
 `Меню на день 3
-Завтрак: Овсянка (40 г сух.) с тыквой + яйцо
-Перекус: Кефир 200 мл + груша
-Обед: Говядина тушёная (100 г) + фасоль + гречка (40 г сух.)
+Завтрак: Овсянка + яйцо
+Перекус: Кефир + груша
+Обед: Говядина + фасоль + гречка
 Перекус: Смузи овощной
-Ужин: Лосось (100 г) + салат
-Перед сном: Йогурт натуральный (150 мл)`
+Ужин: Лосось + салат
+Перед сном: Йогурт`
     ];
 
     function bmiAndCategory(weightBefore, heightCm) {
@@ -152,9 +148,7 @@
     function fillNormsTable() {
       const table = document.getElementById('norms-table');
       table.innerHTML = `
-        <thead><tr>
-          <th>Категория ИМТ</th><th>За всю беременность (кг)</th><th>Еженедельно (кг/нед)</th>
-        </tr></thead>
+        <thead><tr><th>Категория ИМТ</th><th>Итого (кг)</th><th>Еженедельно (кг/нед)</th></tr></thead>
         <tbody>
           ${Object.entries(norms).map(([k,v]) => `
             <tr><td>${k}</td><td>${v.total_kg}</td>
@@ -199,13 +193,14 @@
           const weightGain = cw - pw;
           const weeklyGain = weeksPassed > 0 ? (weightGain / weeksPassed) : 0;
 
-          addMsg(summary, `Прибавка: ${weightGain.toFixed(2)} кг за ${weeksPassed} нед.; ${weeklyGain.toFixed(2)} кг/нед`, "info");
+          addMsg(summary, `Прибавка: ${weightGain.toFixed(2)} кг за ${weeksPassed} нед. → ${weeklyGain.toFixed(2)} кг/нед`, "info");
           const [minN, maxN] = norms[cat].weekly_kg;
           if (weeklyGain > maxN) {
             addMsg(summary, `Прибавка выше нормы (${maxN.toFixed(2)} кг/нед).`, "error");
             const menu = sampleMenus[Math.floor(Math.random() * sampleMenus.length)];
             menuCard.innerText = menu;
-            menuWrap.style.display = "block"; downloadBtn.disabled = false;
+            menuWrap.style.display = "block";
+            downloadBtn.disabled = false;
           } else if (weeklyGain < minN) {
             addMsg(summary, `Прибавка ниже нормы (${minN.toFixed(2)} кг/нед).`, "warn");
           } else {
@@ -222,7 +217,6 @@
     }
 
     document.getElementById('calcBtn').addEventListener('click', calc);
-    document.getElementById('downloadBtn').addEventListener('click', downloadPDF);
     document.addEventListener('DOMContentLoaded', fillNormsTable);
   </script>
 </body>
