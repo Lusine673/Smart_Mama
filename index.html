@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SmartMama — диет‑ассистент</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-YcsIPQqR9g0oSzmKM3v94aVn2Y1v3v6mQo6Cr6a2q9oW1mYF2fKm2U4GfA2m9n/FhNw3R3n8oYYb1J9rD14f0g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <style>
+    :root {
+      --bg: #0f172a;      /* slate-900 */
+      --card: #111827;    /* gray-900 */
+      --ink: #e5e7eb;     /* gray-200 */
+      --muted: #9ca3af;   /* gray-400 */
+      --primary: #22c55e; /* green-500 */
+      --warn: #f59e0b;    /* amber-500 */
+      --error: #ef4444;   /* red-500 */
+      --ok: #10b981;      /* emerald-500 */
+      --border: #1f2937;  /* gray-800 */
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 80% -10%, rgba(34,197,94,.15), transparent),
+                  radial-gradient(1000px 500px at 10% -10%, rgba(59,130,246,.12), transparent),
+                  var(--bg);
+      color: var(--ink);
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 960px; margin: 24px auto; padding: 16px;
+    }
+    .title { font-size: 28px; font-weight: 700; margin: 8px 0 6px; }
+    .subtitle { color: var(--muted); margin-bottom: 24px; }
+    .card {
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
+      border: 1px solid var(--border); border-radius: 14px; padding: 16px 16px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+      backdrop-filter: blur(6px);
+    }
+    .grid {
+      display: grid; gap: 12px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
+    label { display:block; font-weight:600; margin-bottom:6px; }
+    input {
+      width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border);
+      background:#0b1220; color:var(--ink); outline:none;
+    }
+    input:focus { border-color:#334155; }
+    button {
+      border:0; border-radius:10px; padding:10px 14px; font-weight:600; cursor:pointer;
+      background: var(--primary); color:#06210f;
+    }
+    button.secondary { background:#1f2937; color:var(--ink); }
+    button:disabled { opacity:.5; cursor:not-allowed; }
+    .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .section-title { font-size:18px; font-weight:600; margin: 20px 0 8px; }
+    .msg { border-radius:10px; padding:10px 12px; border:1px solid var(--border); }
+    .msg.info { background:#0b1220; }
+    .msg.warn { background: rgba(245,158,11,.15); border-color: rgba(245,158,11,.35); }
+    .msg.error{ background: rgba(239,68,68,.15); border-color: rgba(239,68,68,.35); }
+    .msg.ok   { background: rgba(16,185,129,.15); border-color: rgba(16,185,129,.35); }
+    .muted { color: var(--muted); font-size: 13px; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { padding: 8px 10px; border-bottom: 1px solid var(--border); text-align:left; }
+    th { color: #cbd5e1; font-weight:600; background: #0b1220; }
+    .menu-card {
+      white-space: pre-wrap; background:#0b1220; border:1px dashed #334155; border-radius:12px; padding:12px;
+    }
+    footer { color: var(--muted); font-size: 12px; margin-top: 24px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="title">🤰 SmartMama: ваш личный диет‑ассистент при беременности</div>
+    <div class="subtitle">Отслеживайте прибавку веса и получайте персонализированные рекомендации по питанию</div>
+
+    <div class="card">
+      <div class="section-title">📝 Введите ваши данные</div>
+      <div class="grid">
+        <div>
+          <label>Вес до беременности (кг)</label>
+          <input id="weight_before" type="number" min="30" max="150" step="0.1" value="60.0">
+        </div>
+        <div>
+          <label>Рост (см)</label>
+          <input id="height" type="number" min="120" max="220" step="1" value="165">
+        </div>
+        <div>
+          <label>Текущий вес (кг)</label>
+          <input id="current_weight" type="number" min="30" max="200" step="0.1" value="65.0">
+        </div>
+        <div>
+          <label>Текущий срок (нед.)</label>
+          <input id="gest_weeks" type="number" min="1" max="42" step="1" value="12">
+        </div>
+        <div>
+          <label>Предыдущий вес (кг, опционально)</label>
+          <input id="prev_weight" type="number" min="0" max="200" step="0.1" value="0.0">
+        </div>
+        <div>
+          <label>Срок предыдущего взвешивания (нед., опционально)</label>
+          <input id="prev_weeks" type="number" min="0" max="42" step="1" value="0">
+        </div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <button id="calcBtn">Рассчитать</button>
+        <button id="downloadBtn" class="secondary" disabled>📥 Скачать меню (PDF)</button>
+      </div>
+
+      <div id="summary" style="margin-top:14px; display:grid; gap:8px;"></div>
+
+      <div class="section-title">📚 Рекомендуемые нормы прибавки веса</div>
+      <div class="msg info">
+        <table id="norms-table"></table>
+      </div>
+
+      <div id="menuWrap" style="display:none; margin-top:12px">
+        <div class="section-title">📋 Ваше персонализированное меню на день</div>
+        <div id="menu-card" class="menu-card"></div>
+      </div>
+
+      <footer>⚠️ Информация носит справочный характер и не заменяет консультацию врача.</footer>
+    </div>
+  </div>
+
+  <script>
+    // Нормы прибавки по ИМТ (кг/нед)
+    const norms = {
+      "ИМТ < 18.5": { total_kg: "12.5–18", weekly_kg: [0.44, 0.58] },
+      "ИМТ 18.5–24.9": { total_kg: "11.5–16", weekly_kg: [0.35, 0.50] },
+      "ИМТ 25.0–29.9": { total_kg: "7–11", weekly_kg: [0.23, 0.33] },
+      "ИМТ ≥ 30.0": { total_kg: "5–9", weekly_kg: [0.17, 0.27] },
+    };
+
+    // Меню на день (без эмодзи — легче для печати/ПДФ)
+    const sampleMenus = [
+`Меню на день 1
+Завтрак: Омлет из 2 яиц с шпинатом + гречневая каша (50 г сух.) + зелёный чай
+Перекус: Натуральный йогурт 200 мл + горсть черники
+Обед: Куриная грудка на пару (120 г) + брокколи/цветная капуста (150 г) + киноа (40 г сух.)
+Перекус: Творог 5% (100 г) + 1 ст.л. льняного семени
+Ужин: Запечённая треска (100 г) + салат из огурцов, помидоров, зелени с 1 ч.л. оливкового масла
+Перед сном: Кефир 1% (200 мл)`,
+`Меню на день 2
+Завтрак: Творожная запеканка (творог 150 г, яйцо, яблоко) + чай без сахара
+Перекус: Горсть миндаля (20 г) + яблоко
+Обед: Индейка отварная (100 г) + тушеные кабачки и морковь (200 г) + бурый рис (40 г сух.)
+Перекус: Протеиновый коктейль на воде или кефире (без сахара)
+Ужин: Запечённые овощи (баклажан, цуккини, перец) с фетой (30 г)
+Перед сном: Ряженка 2.5% (200 мл)`,
+`Меню на день 3
+Завтрак: Овсянка на воде (40 г сух.) с тыквой и корицей + 1 варёное яйцо
+Перекус: Кефир 1% (200 мл) + 1 груша
+Обед: Говядина тушёная (100 г) + стручковая фасоль (150 г) + гречка (40 г сух.)
+Перекус: Смузи: шпинат, огурец, сельдерей, лимонный сок, вода
+Ужин: Лосось на пару (100 г) + салат из рукколы, авокадо, оливковое масло
+Перед сном: Натуральный йогурт (150 мл)`
+    ];
+
+    function bmiAndCategory(weightBefore, heightCm) {
+      const bmi = weightBefore / ((heightCm / 100) ** 2);
+      let cat;
+      if (bmi < 18.5) cat = "ИМТ < 18.5";
+      else if (bmi < 25) cat = "ИМТ 18.5–24.9";
+      else if (bmi < 30) cat = "ИМТ 25.0–29.9";
+      else cat = "ИМТ ≥ 30.0";
+      return [bmi, cat];
+    }
+
+    // Заполняем таблицу норм
+    function fillNormsTable() {
+      const table = document.getElementById('norms-table');
+      table.innerHTML = `
+        <thead><tr>
+          <th>Категория ИМТ</th>
+          <th>За всю беременность (кг)</th>
+          <th>Еженедельно (кг/нед)</th>
+        </tr></thead>
+        <tbody>
+          ${Object.entries(norms).map(([k,v]) => `
+            <tr>
+              <td>${k}</td>
+              <td>${v.total_kg}</td>
+              <td>${v.weekly_kg[0].toFixed(2)}–${v.weekly_kg[1].toFixed(2)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      `;
+    }
+
+    function addMsg(container, text, type="info") {
+      const div = document.createElement('div');
+      div.className = `msg ${type}`;
+      div.textContent = text;
+      container.appendChild(div);
+    }
+
+    function calc() {
+      const wb = parseFloat(document.getElementById('weight_before').value);
+      const h  = parseFloat(document.getElementById('height').value);
+      const cw = parseFloat(document.getElementById('current_weight').value);
+      const gw = parseInt(document.getElementById('gest_weeks').value || "0", 10);
+      const pw = parseFloat(document.getElementById('prev_weight').value || "0");
+      const pwk= parseInt(document.getElementById('prev_weeks').value || "0", 10);
+
+      const summary = document.getElementById('summary');
+      summary.innerHTML = "";
+
+      if (!(wb>0 && h>0 && cw>0 && gw>0)) {
+        addMsg(summary, "Проверьте вводимые значения.", "error");
+        return;
+      }
+
+      const [bmi, cat] = bmiAndCategory(wb, h);
+      addMsg(summary, `ИМТ до беременности: ${bmi.toFixed(1)} → ${cat}`, "info");
+
+      const menuWrap = document.getElementById('menuWrap');
+      const menuCard = document.getElementById('menu-card');
+      const downloadBtn = document.getElementById('downloadBtn');
+      menuWrap.style.display = "none";
+      menuCard.textContent = "";
+      downloadBtn.disabled = true;
+
+      if (pw > 0) {
+        if (!(pwk < gw)) {
+          addMsg(summary, "Срок предыдущего взвешивания должен быть меньше текущего срока.", "error");
+        } else {
+          const weeksPassed = gw - pwk;
+          const weightGain = cw - pw;
+          const weeklyGain = weeksPassed > 0 ? (weightGain / weeksPassed) : 0;
+
+          addMsg(summary, `Прибавка за ${weeksPassed} нед.: ${weightGain.toFixed(2)} кг; в среднем: ${weeklyGain.toFixed(2)} кг/нед`, "info");
+
+          const [minN, maxN] = norms[cat].weekly_kg;
+          if (weeklyGain > maxN) {
+            addMsg(summary, `Прибавка выше нормы (${maxN.toFixed(2)} кг/нед). Рекомендуем скорректировать питание.`, "error");
+            const menu = sampleMenus[Math.floor(Math.random() * sampleMenus.length)];
+            menuCard.textContent = menu;
+            menuWrap.style.display = "block";
+            downloadBtn.disabled = false;
+          } else if (weeklyGain < minN) {
+            addMsg(summary, `Прибавка ниже нормы (${minN.toFixed(2)} кг/нед). Убедитесь, что питаетесь достаточно.`, "warn");
+          } else {
+            addMsg(summary, `Прибавка в пределах нормы (${minN.toFixed(2)}–${maxN.toFixed(2)} кг/нед). Отличная работа!`, "ok");
+          }
+        }
+      } else {
+        addMsg(summary, "Введите предыдущий вес и срок, чтобы рассчитать динамику прибавки.", "info");
+      }
+    }
+
+    function downloadPDF() {
+      const element = document.getElementById('menu-card');
+      const opt = {
+        margin:       10,
+        filename:     'SmartMama_меню.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { scale: 2, useCORS: true },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+
+    document.getElementById('calcBtn').addEventListener('click', calc);
+    document.getElementById('downloadBtn').addEventListener('click', downloadPDF);
+    document.addEventListener('DOMContentLoaded', fillNormsTable);
+  </script>
+</body>
+</html>
